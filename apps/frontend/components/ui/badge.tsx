@@ -1,17 +1,32 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+
+const badgeVariants = cva(
+  "inline-flex items-center rounded px-2 py-1 text-xs font-semibold transition-colors",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground",
+        outline: "border bg-background text-foreground",
+        accent: "bg-accent text-accent-foreground",
+        destructive: "bg-destructive text-destructive-foreground"
+      }
+    },
+    defaultVariants: {
+      variant: "default"
+    }
+  }
+);
 
 export function Badge({
   className,
-  children
-}: React.HTMLAttributes<HTMLSpanElement>) {
+  children,
+  variant
+}: React.HTMLAttributes<HTMLSpanElement> & VariantProps<typeof badgeVariants>) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded px-2 py-1 text-xs font-semibold",
-        className
-      )}
-    >
+    <span className={cn(badgeVariants({ variant }), className)}>
       {children}
     </span>
   );

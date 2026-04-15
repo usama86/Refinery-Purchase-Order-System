@@ -1,7 +1,15 @@
-import { Search } from "lucide-react";
+import { Filter, Search } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { SORT_LABELS } from "@/lib/catalog";
 import type { CatalogQuery, CatalogSort } from "@/lib/types";
 
@@ -19,11 +27,16 @@ export function CatalogToolbar({
   onChange: (query: CatalogQuery) => void;
 }) {
   return (
-    <section className="sticky top-[65px] z-30 mb-4 rounded-lg border bg-card p-4 shadow-soft">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
+    <section
+      className="rounded-lg border bg-card/92 p-3 shadow-sm"
+      aria-label="Catalog controls"
+    >
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
         <div className="min-w-0 flex-1">
-          <Label htmlFor="catalog-search">Search catalog</Label>
-          <div className="relative mt-2">
+          <Label htmlFor="catalog-search" className="sr-only">
+            Search catalog
+          </Label>
+          <div className="relative">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden="true"
@@ -35,62 +48,78 @@ export function CatalogToolbar({
                 onChange({ ...query, search: event.target.value })
               }
               placeholder="Name, ID, supplier, manufacturer, or model"
-              className="pl-9"
+              className="h-9 bg-background pl-9"
             />
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3 xl:w-[620px]">
-          <div>
-            <Label htmlFor="category-filter">Category</Label>
+        <div className="grid gap-2 sm:grid-cols-[180px_220px_150px]">
+          <div className="space-y-1.5">
+            <Label htmlFor="category-filter" className="text-xs text-muted-foreground">
+              Category
+            </Label>
             <Select
-              id="category-filter"
-              className="mt-2 w-full"
               value={query.category}
-              onChange={(event) =>
-                onChange({ ...query, category: event.target.value })
-              }
+              onValueChange={(value) => onChange({ ...query, category: value })}
             >
-              <option value="all">All categories</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
+              <SelectTrigger id="category-filter" className="h-9 bg-background">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
-          <div>
-            <Label htmlFor="sort-filter">Sort</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="sort-filter" className="text-xs text-muted-foreground">
+              Sort
+            </Label>
             <Select
-              id="sort-filter"
-              className="mt-2 w-full"
               value={query.sort}
-              onChange={(event) =>
-                onChange({ ...query, sort: event.target.value as CatalogSort })
+              onValueChange={(value) =>
+                onChange({ ...query, sort: value as CatalogSort })
               }
             >
-              {Object.entries(SORT_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
+              <SelectTrigger id="sort-filter" className="h-9 bg-background">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(SORT_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
-          <label className="flex h-[66px] items-end gap-2 rounded-md border bg-muted/40 px-3 pb-3 text-sm font-medium">
-            <input
-              type="checkbox"
+          <div className="space-y-1.5">
+            <span className="text-xs font-medium text-muted-foreground">Availability</span>
+            <label className="flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm font-medium">
+            <Checkbox
+              id="stock-filter"
               checked={query.inStockOnly}
-              onChange={(event) =>
-                onChange({ ...query, inStockOnly: event.target.checked })
+              onCheckedChange={(checked) =>
+                onChange({ ...query, inStockOnly: checked === true })
               }
-              className="h-4 w-4 rounded border-input accent-teal-800"
             />
-            In stock only
-          </label>
+              <span>In stock only</span>
+            </label>
+          </div>
         </div>
       </div>
-      <div className="mt-3 flex items-center justify-between border-t pt-3 text-sm text-muted-foreground">
-        <span>{resultCount} matching items</span>
-        <span aria-live="polite">{loading ? "Refreshing catalog..." : "Catalog ready"}</span>
+      <Separator className="my-3" />
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-2">
+          <Filter className="h-3.5 w-3.5" aria-hidden="true" />
+          {resultCount} matching items
+        </span>
+        <span aria-live="polite" aria-atomic="true">
+          {loading ? "Refreshing catalog..." : "Catalog ready"}
+        </span>
       </div>
     </section>
   );
