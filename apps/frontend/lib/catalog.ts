@@ -121,6 +121,6 @@ export function paginateCatalog(
 }
 
 export async function searchCatalog(query: CatalogQuery) {
-  await new Promise((resolve) => setTimeout(resolve, 360));
+  await new Promise((resolve) => setTimeout(resolve, 180));
   return paginateCatalog(filterAndSortCatalog(catalogItems, query), query);
 }

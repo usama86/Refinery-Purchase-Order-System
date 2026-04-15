@@ -10,8 +10,6 @@ import type { CatalogQuery } from "@/lib/types";
 export function CatalogActionRow({
   query,
   categories,
-  total,
-  loading,
   activeFilterCount,
   onChange,
   onReset,
@@ -19,8 +17,6 @@ export function CatalogActionRow({
 }: {
   query: CatalogQuery;
   categories: string[];
-  total: number;
-  loading: boolean;
   activeFilterCount: number;
   onChange: (query: CatalogQuery) => void;
   onReset: () => void;
@@ -55,16 +51,10 @@ export function CatalogActionRow({
             onChange={onChange}
             onClear={onClearFilters}
           />
-          <div className="min-w-[108px] text-right text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">{total}</span> results
-          </div>
         </div>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <CatalogActiveFilters query={query} onChange={onChange} onReset={onReset} />
-        <span className="text-xs text-muted-foreground" aria-live="polite" aria-atomic="true">
-          {loading ? "Refreshing catalog..." : "Catalog ready"}
-        </span>
       </div>
     </section>
   );

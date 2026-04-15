@@ -20,7 +20,9 @@ describe("catalog search/filter/sort", () => {
       search: "",
       category: "Valve",
       inStockOnly: true,
-      sort: "price-asc"
+      sort: "price-asc",
+      page: 1,
+      pageSize: 10
     });
 
     expect(result.length).toBeGreaterThan(0);
@@ -45,14 +47,14 @@ describe("catalog search/filter/sort", () => {
   });
 
   it("parses URL query parameters for catalog state", () => {
-    const params = new URLSearchParams("q=pump&category=Pump&stock=in&sort=lead-desc");
+    const params = new URLSearchParams("q=pump&category=Pump&stock=in&sort=lead-desc&page=2&pageSize=20");
     expect(parseCatalogQuery(params)).toEqual({
       search: "pump",
       category: "Pump",
       inStockOnly: true,
       sort: "lead-desc",
-      page: 1,
-      pageSize: 10
+      page: 2,
+      pageSize: 20
     });
   });
 

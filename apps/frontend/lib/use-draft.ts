@@ -12,7 +12,6 @@ import type { CatalogItem, DraftHeader, PurchaseOrderDraft } from "@/lib/types";
 
 export function useDraft() {
   const [draft, setDraft] = useState<PurchaseOrderDraft>(() => createEmptyDraft());
-  const [message, setMessage] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -29,7 +28,6 @@ export function useDraft() {
     (item: CatalogItem) => {
       const result = addItemToDraft(draft, item);
       if (result.ok) persist(result.draft);
-      setMessage(result.message);
       return result;
     },
     [draft, persist]
@@ -52,17 +50,14 @@ export function useDraft() {
   const resetDraft = useCallback(() => {
     const empty = createEmptyDraft();
     persist(empty);
-    setMessage(null);
   }, [persist]);
 
   return {
     draft,
     hydrated,
-    message,
     addItem,
     setQuantity,
     setHeader,
-    resetDraft,
-    clearMessage: () => setMessage(null)
+    resetDraft
   };
 }

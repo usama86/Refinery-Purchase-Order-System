@@ -3,16 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { CatalogActionRow } from "@/components/catalog/catalog-action-row";
+import { CatalogBreadcrumbHeader } from "@/components/catalog/catalog-breadcrumb-header";
 import { CatalogPagination } from "@/components/catalog/catalog-pagination";
 import { CatalogTable } from "@/components/catalog/catalog-table";
 import { DraftSummaryCard } from "@/components/draft/draft-summary-card";
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { TableSkeleton } from "@/components/common/loading-state";
-import { PageHeader } from "@/components/common/page-header";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -38,32 +37,36 @@ export function CatalogPage() {
   const [query, setQuery] = useState<CatalogQuery>(() =>
     parseCatalogQuery(searchParams)
   );
-  const debouncedQuery = useDebounce(query, 320);
+  const debouncedSearch = useDebounce(query.search, 320);
+  const effectiveQuery = useMemo(
+    () => ({ ...query, search: debouncedSearch }),
+    [debouncedSearch, query]
+  );
   const categories = useMemo(() => getCatalogCategories(), []);
-  const { draft, addItem, message, clearMessage } = useDraft();
+  const { draft, addItem } = useDraft();
 
   const catalogQuery = useQuery({
-    queryKey: ["catalog", debouncedQuery],
-    queryFn: () => searchCatalog(debouncedQuery)
+    queryKey: ["catalog", effectiveQuery],
+    queryFn: () => searchCatalog(effectiveQuery)
   });
 
   useEffect(() => {
-    const params = catalogQueryToParams(debouncedQuery);
+    const params = catalogQueryToParams(effectiveQuery);
     const next = params.toString() ? `${pathname}?${params}` : pathname;
     router.replace(next, { scroll: false });
-  }, [debouncedQuery, pathname, router]);
+  }, [effectiveQuery, pathname, router]);
 
   const result = catalogQuery.data;
   const items = result?.items ?? [];
   const total = result?.total ?? 0;
-  const page = result?.page ?? debouncedQuery.page;
+  const page = result?.page ?? effectiveQuery.page;
   const totalPages = result?.totalPages ?? 1;
   const activeFilterCount =
     (query.category !== "all" ? 1 : 0) + (query.inStockOnly ? 1 : 0);
   const noFilters =
-    debouncedQuery.search === DEFAULT_CATALOG_QUERY.search &&
-    debouncedQuery.category === DEFAULT_CATALOG_QUERY.category &&
-    debouncedQuery.inStockOnly === DEFAULT_CATALOG_QUERY.inStockOnly;
+    effectiveQuery.search === DEFAULT_CATALOG_QUERY.search &&
+    effectiveQuery.category === DEFAULT_CATALOG_QUERY.category &&
+    effectiveQuery.inStockOnly === DEFAULT_CATALOG_QUERY.inStockOnly;
 
   const updateQuery = (nextQuery: CatalogQuery) => {
     setQuery(nextQuery);
@@ -84,31 +87,21 @@ export function CatalogPage() {
 
   return (
     <div>
-      <PageHeader
-        eyebrow="Catalog"
-        title="Refinery equipment catalog"
-        description="Compare approved refinery equipment and build a single-supplier purchase order draft."
+      <CatalogBreadcrumbHeader
+        info="Compare approved refinery equipment and build a single-supplier purchase order draft."
+        total={total}
+        loading={catalogQuery.isFetching}
       />
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
         <section className="min-w-0 space-y-3" aria-labelledby="catalog-results-title">
           <CatalogActionRow
             query={query}
             categories={categories}
-            total={total}
-            loading={catalogQuery.isFetching}
             activeFilterCount={activeFilterCount}
             onChange={updateQuery}
             onReset={resetQuery}
             onClearFilters={clearFilters}
           />
-          {message ? (
-            <Alert className="flex items-center justify-between gap-3 py-3" aria-live="polite">
-              <AlertDescription>{message}</AlertDescription>
-              <Button variant="ghost" size="sm" onClick={clearMessage}>
-                Dismiss
-              </Button>
-            </Alert>
-          ) : null}
           {catalogQuery.isLoading ? <TableSkeleton /> : null}
           {catalogQuery.isError ? (
             <ErrorState
@@ -147,15 +140,29 @@ export function CatalogPage() {
                   supplierLock={draft.supplier}
                   sort={query.sort}
                   onSortChange={(sort) => setQuery({ ...query, sort, page: 1 })}
-                  onAdd={(item) => addItem(item)}
+                  onAdd={(item) => {
+                    const result = addItem(item);
+                    if (result.ok) {
+                      toast.success(result.message, {
+                        description: item.name
+                      });
+                    } else {
+                      toast.error("Supplier mismatch blocked", {
+                        description: result.message
+                      });
+                    }
+                  }}
                 />
               </CardContent>
               <CatalogPagination
                 page={page}
-                pageSize={debouncedQuery.pageSize}
+                pageSize={effectiveQuery.pageSize}
                 total={total}
                 totalPages={totalPages}
                 onPageChange={(nextPage) => setQuery({ ...query, page: nextPage })}
+                onPageSizeChange={(pageSize) =>
+                  setQuery({ ...query, pageSize, page: 1 })
+                }
               />
             </Card>
           ) : null}
