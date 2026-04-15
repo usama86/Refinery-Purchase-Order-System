@@ -10,6 +10,14 @@ import { TableSkeleton } from "@/components/common/loading-state";
 import { StatusBadge } from "@/components/common/status-badge";
 import { StatusLegend } from "@/components/po/status-legend";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 import { listPurchaseOrders } from "@/lib/procurement";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -47,43 +55,43 @@ export function PoListPage() {
       ) : null}
       {ordersQuery.isSuccess && ordersQuery.data.length > 0 ? (
         <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
-          <table className="w-full min-w-[920px] text-left text-sm">
-            <thead className="bg-muted text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-semibold">PO number</th>
-                <th className="px-4 py-3 font-semibold">Supplier</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Submitted</th>
-                <th className="px-4 py-3 font-semibold">Requestor</th>
-                <th className="px-4 py-3 text-right font-semibold">Total</th>
-                <th className="px-4 py-3 text-right font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className="min-w-[920px]">
+            <TableHeader className="bg-muted/65">
+              <TableRow className="hover:bg-muted/65">
+                <TableHead>PO number</TableHead>
+                <TableHead>Supplier</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead>Requestor</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {ordersQuery.data.map((order) => (
-                <tr key={order.poNumber} className="border-t hover:bg-muted/30">
-                  <td className="px-4 py-4 font-semibold">{order.poNumber}</td>
-                  <td className="px-4 py-4">{order.supplier}</td>
-                  <td className="px-4 py-4">
+                <TableRow key={order.poNumber}>
+                  <TableCell className="font-semibold">{order.poNumber}</TableCell>
+                  <TableCell>{order.supplier}</TableCell>
+                  <TableCell>
                     <StatusBadge status={order.status} />
-                  </td>
-                  <td className="px-4 py-4">{formatDate(order.submittedAt)}</td>
-                  <td className="px-4 py-4">{order.header.requestor}</td>
-                  <td className="px-4 py-4 text-right font-semibold">
+                  </TableCell>
+                  <TableCell>{formatDate(order.submittedAt)}</TableCell>
+                  <TableCell>{order.header.requestor}</TableCell>
+                  <TableCell className="text-right font-semibold">
                     {formatCurrency(order.totalUsd)}
-                  </td>
-                  <td className="px-4 py-4 text-right">
+                  </TableCell>
+                  <TableCell className="text-right">
                     <Button asChild variant="outline" size="sm">
                       <Link href={`/purchase-orders/${order.poNumber}`}>
                         <Eye className="h-4 w-4" aria-hidden="true" />
                         View details
                       </Link>
                     </Button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       ) : null}
     </div>
