@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   catalogItems,
   filterAndSortCatalog,
+  paginateCatalog,
   parseCatalogQuery
 } from "@/lib/catalog";
 
@@ -49,8 +50,19 @@ describe("catalog search/filter/sort", () => {
       search: "pump",
       category: "Pump",
       inStockOnly: true,
-      sort: "lead-desc"
+      sort: "lead-desc",
+      page: 1,
+      pageSize: 10
     });
+  });
+
+  it("paginates catalog results with a server-ready result shape", () => {
+    const result = paginateCatalog(catalogItems, { page: 2, pageSize: 10 });
+
+    expect(result.items).toHaveLength(10);
+    expect(result.total).toBe(50);
+    expect(result.page).toBe(2);
+    expect(result.totalPages).toBe(5);
   });
 });
 
@@ -59,6 +71,8 @@ function query(search: string, sort: "price-asc" | "price-desc" | "lead-asc" | "
     search,
     category: "all",
     inStockOnly: false,
-    sort
+    sort,
+    page: 1,
+    pageSize: 10
   };
 }

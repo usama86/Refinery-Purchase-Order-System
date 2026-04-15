@@ -25,6 +25,16 @@ export type CatalogQuery = {
   category: string;
   inStockOnly: boolean;
   sort: CatalogSort;
+  page: number;
+  pageSize: number;
+};
+
+export type CatalogSearchResult = {
+  items: CatalogItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 };
 
 export type DraftLine = {

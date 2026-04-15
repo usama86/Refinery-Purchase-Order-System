@@ -1,4 +1,4 @@
-import { ChevronDown, LockKeyhole } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronsUpDown, ChevronDown, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,16 +14,20 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import type { CatalogItem } from "@/lib/types";
+import type { CatalogItem, CatalogSort } from "@/lib/types";
 import { formatCurrency, sentenceCase } from "@/lib/utils";
 
 export function CatalogTable({
   items,
   supplierLock,
+  sort,
+  onSortChange,
   onAdd
 }: {
   items: CatalogItem[];
   supplierLock: string | null;
+  sort: CatalogSort;
+  onSortChange: (sort: CatalogSort) => void;
   onAdd: (item: CatalogItem) => void;
 }) {
   return (
@@ -31,11 +35,28 @@ export function CatalogTable({
       <TableHeader className="bg-muted/65">
         <TableRow className="hover:bg-muted/65">
           <TableHead className="w-[38%]">Item</TableHead>
-          <TableHead>Supplier</TableHead>
+          <SortableHead
+            label="Supplier"
+            active={sort === "supplier-asc" ? "asc" : false}
+            onSort={() => onSortChange("supplier-asc")}
+          />
           <TableHead>Category</TableHead>
-          <TableHead>Lead</TableHead>
+          <SortableHead
+            label="Lead"
+            active={
+              sort === "lead-asc" ? "asc" : sort === "lead-desc" ? "desc" : false
+            }
+            onSort={() => onSortChange(sort === "lead-asc" ? "lead-desc" : "lead-asc")}
+          />
           <TableHead>Stock</TableHead>
-          <TableHead className="text-right">Price</TableHead>
+          <SortableHead
+            label="Price"
+            align="right"
+            active={
+              sort === "price-asc" ? "asc" : sort === "price-desc" ? "desc" : false
+            }
+            onSort={() => onSortChange(sort === "price-asc" ? "price-desc" : "price-asc")}
+          />
           <TableHead className="text-right">Action</TableHead>
         </TableRow>
       </TableHeader>
@@ -57,8 +78,8 @@ export function CatalogTable({
                     />
                     Engineering specs
                   </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <dl className="mt-3 grid grid-cols-2 gap-2 rounded-md border bg-muted/30 p-3">
+                  <CollapsibleContent className="catalog-specs">
+                    <dl className="mt-3 grid grid-cols-2 gap-3 rounded-md border bg-background/80 p-3 shadow-sm">
                       {Object.entries(item.specs).map(([key, value]) => (
                         <div key={key} className="min-w-0">
                           <dt className="truncate text-[11px] font-medium uppercase text-muted-foreground">
@@ -127,5 +148,41 @@ export function CatalogTable({
         })}
       </TableBody>
     </Table>
+  );
+}
+
+function SortableHead({
+  label,
+  active,
+  align = "left",
+  onSort
+}: {
+  label: string;
+  active: "asc" | "desc" | false;
+  align?: "left" | "right";
+  onSort: () => void;
+}) {
+  const Icon = active === "asc" ? ArrowUp : active === "desc" ? ArrowDown : ChevronsUpDown;
+
+  return (
+    <TableHead
+      aria-sort={
+        active === "asc" ? "ascending" : active === "desc" ? "descending" : "none"
+      }
+      className={align === "right" ? "text-right" : undefined}
+    >
+      <button
+        type="button"
+        onClick={onSort}
+        className={[
+          "focus-ring inline-flex items-center gap-1.5 rounded px-1 py-1 transition-colors hover:text-foreground",
+          align === "right" ? "ml-auto" : "",
+          active ? "text-foreground" : ""
+        ].join(" ")}
+      >
+        {label}
+        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+      </button>
+    </TableHead>
   );
 }

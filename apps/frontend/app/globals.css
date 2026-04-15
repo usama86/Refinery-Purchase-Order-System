@@ -83,3 +83,37 @@ textarea {
 ::selection {
   background: hsl(var(--primary) / 0.18);
 }
+
+.catalog-specs {
+  overflow: hidden;
+}
+
+.catalog-specs[data-state="open"] {
+  animation: specs-open 180ms ease-out;
+}
+
+.catalog-specs[data-state="closed"] {
+  animation: specs-close 160ms ease-in;
+}
+
+@keyframes specs-open {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes specs-close {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}

@@ -1,5 +1,10 @@
 import rawItems from "@/data/refinery-items.json";
-import type { CatalogItem, CatalogQuery, CatalogSort } from "@/lib/types";
+import type {
+  CatalogItem,
+  CatalogQuery,
+  CatalogSearchResult,
+  CatalogSort
+} from "@/lib/types";
 
 export const catalogItems = rawItems as unknown as CatalogItem[];
 
@@ -7,7 +12,9 @@ export const DEFAULT_CATALOG_QUERY: CatalogQuery = {
   search: "",
   category: "all",
   inStockOnly: false,
-  sort: "price-asc"
+  sort: "price-asc",
+  page: 1,
+  pageSize: 10
 };
 
 export const SORT_LABELS: Record<CatalogSort, string> = {
@@ -24,12 +31,19 @@ export function getCatalogCategories(items: CatalogItem[] = catalogItems) {
 
 export function parseCatalogQuery(params: URLSearchParams): CatalogQuery {
   const sort = params.get("sort") as CatalogSort | null;
+  const page = Number(params.get("page"));
+  const pageSize = Number(params.get("pageSize"));
 
   return {
     search: params.get("q") ?? DEFAULT_CATALOG_QUERY.search,
     category: params.get("category") ?? DEFAULT_CATALOG_QUERY.category,
     inStockOnly: params.get("stock") === "in",
-    sort: sort && sort in SORT_LABELS ? sort : DEFAULT_CATALOG_QUERY.sort
+    sort: sort && sort in SORT_LABELS ? sort : DEFAULT_CATALOG_QUERY.sort,
+    page: Number.isInteger(page) && page > 0 ? page : DEFAULT_CATALOG_QUERY.page,
+    pageSize:
+      Number.isInteger(pageSize) && pageSize > 0
+        ? pageSize
+        : DEFAULT_CATALOG_QUERY.pageSize
   };
 }
 
@@ -39,6 +53,10 @@ export function catalogQueryToParams(query: CatalogQuery) {
   if (query.category !== "all") params.set("category", query.category);
   if (query.inStockOnly) params.set("stock", "in");
   if (query.sort !== DEFAULT_CATALOG_QUERY.sort) params.set("sort", query.sort);
+  if (query.page !== DEFAULT_CATALOG_QUERY.page) params.set("page", String(query.page));
+  if (query.pageSize !== DEFAULT_CATALOG_QUERY.pageSize) {
+    params.set("pageSize", String(query.pageSize));
+  }
   return params;
 }
 
@@ -84,7 +102,25 @@ export function filterAndSortCatalog(
   });
 }
 
+export function paginateCatalog(
+  items: CatalogItem[],
+  query: Pick<CatalogQuery, "page" | "pageSize">
+): CatalogSearchResult {
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / query.pageSize));
+  const page = Math.min(Math.max(query.page, 1), totalPages);
+  const start = (page - 1) * query.pageSize;
+
+  return {
+    items: items.slice(start, start + query.pageSize),
+    total,
+    page,
+    pageSize: query.pageSize,
+    totalPages
+  };
+}
+
 export async function searchCatalog(query: CatalogQuery) {
   await new Promise((resolve) => setTimeout(resolve, 360));
-  return filterAndSortCatalog(catalogItems, query);
+  return paginateCatalog(filterAndSortCatalog(catalogItems, query), query);
 }

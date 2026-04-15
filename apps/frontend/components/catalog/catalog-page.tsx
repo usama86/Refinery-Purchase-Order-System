@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { CatalogToolbar } from "@/components/catalog/catalog-toolbar";
+import { CatalogActionRow } from "@/components/catalog/catalog-action-row";
+import { CatalogPagination } from "@/components/catalog/catalog-pagination";
 import { CatalogTable } from "@/components/catalog/catalog-table";
 import { DraftSummaryCard } from "@/components/draft/draft-summary-card";
 import { EmptyState } from "@/components/common/empty-state";
@@ -52,11 +53,34 @@ export function CatalogPage() {
     router.replace(next, { scroll: false });
   }, [debouncedQuery, pathname, router]);
 
-  const items = catalogQuery.data ?? [];
+  const result = catalogQuery.data;
+  const items = result?.items ?? [];
+  const total = result?.total ?? 0;
+  const page = result?.page ?? debouncedQuery.page;
+  const totalPages = result?.totalPages ?? 1;
+  const activeFilterCount =
+    (query.category !== "all" ? 1 : 0) + (query.inStockOnly ? 1 : 0);
   const noFilters =
     debouncedQuery.search === DEFAULT_CATALOG_QUERY.search &&
     debouncedQuery.category === DEFAULT_CATALOG_QUERY.category &&
     debouncedQuery.inStockOnly === DEFAULT_CATALOG_QUERY.inStockOnly;
+
+  const updateQuery = (nextQuery: CatalogQuery) => {
+    setQuery(nextQuery);
+  };
+
+  const resetQuery = () => {
+    setQuery(DEFAULT_CATALOG_QUERY);
+  };
+
+  const clearFilters = () => {
+    setQuery({
+      ...query,
+      category: DEFAULT_CATALOG_QUERY.category,
+      inStockOnly: DEFAULT_CATALOG_QUERY.inStockOnly,
+      page: 1
+    });
+  };
 
   return (
     <div>
@@ -67,12 +91,15 @@ export function CatalogPage() {
       />
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
         <section className="min-w-0 space-y-3" aria-labelledby="catalog-results-title">
-          <CatalogToolbar
+          <CatalogActionRow
             query={query}
             categories={categories}
-            resultCount={items.length}
+            total={total}
             loading={catalogQuery.isFetching}
-            onChange={setQuery}
+            activeFilterCount={activeFilterCount}
+            onChange={updateQuery}
+            onReset={resetQuery}
+            onClearFilters={clearFilters}
           />
           {message ? (
             <Alert className="flex items-center justify-between gap-3 py-3" aria-live="polite">
@@ -118,9 +145,18 @@ export function CatalogPage() {
                 <CatalogTable
                   items={items}
                   supplierLock={draft.supplier}
+                  sort={query.sort}
+                  onSortChange={(sort) => setQuery({ ...query, sort, page: 1 })}
                   onAdd={(item) => addItem(item)}
                 />
               </CardContent>
+              <CatalogPagination
+                page={page}
+                pageSize={debouncedQuery.pageSize}
+                total={total}
+                totalPages={totalPages}
+                onPageChange={(nextPage) => setQuery({ ...query, page: nextPage })}
+              />
             </Card>
           ) : null}
         </section>
