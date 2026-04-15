@@ -1,0 +1,14 @@
+{
+  "name": "refinery-purchase-order-system",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace @refinery/frontend",
+    "build:frontend": "npm run build --workspace @refinery/frontend",
+    "test:frontend": "npm run test --workspace @refinery/frontend",
+    "lint:frontend": "npm run lint --workspace @refinery/frontend"
+  }
+}

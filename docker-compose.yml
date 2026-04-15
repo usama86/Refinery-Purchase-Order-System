@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: ./apps/frontend
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_TELEMETRY_DISABLED=1
