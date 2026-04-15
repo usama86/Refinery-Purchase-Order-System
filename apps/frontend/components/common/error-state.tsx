@@ -1,4 +1,5 @@
 import { AlertTriangle } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 
 export function ErrorState({
   title,
@@ -10,9 +11,9 @@ export function ErrorState({
   action?: React.ReactNode;
 }) {
   return (
-    <section role="alert" className="rounded-lg border bg-card p-8">
+    <Alert role="alert" variant="destructive" className="p-6">
       <div className="flex items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-destructive/10 text-destructive">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-destructive/15 text-destructive">
           <AlertTriangle className="h-5 w-5" aria-hidden="true" />
         </div>
         <div>
@@ -21,6 +22,6 @@ export function ErrorState({
           {action ? <div className="mt-4">{action}</div> : null}
         </div>
       </div>
-    </section>
+    </Alert>
   );
 }
