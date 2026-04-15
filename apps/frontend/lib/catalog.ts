@@ -1,7 +1,7 @@
 import rawItems from "@/data/refinery-items.json";
 import type { CatalogItem, CatalogQuery, CatalogSort } from "@/lib/types";
 
-export const catalogItems = rawItems as CatalogItem[];
+export const catalogItems = rawItems as unknown as CatalogItem[];
 
 export const DEFAULT_CATALOG_QUERY: CatalogQuery = {
   search: "",

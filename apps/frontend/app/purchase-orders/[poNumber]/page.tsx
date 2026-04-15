@@ -1,9 +1,10 @@
 import { PoDetailPage } from "@/components/po/po-detail-page";
 
-export default function PurchaseOrderDetailRoute({
+export default async function PurchaseOrderDetailRoute({
   params
 }: {
-  params: { poNumber: string };
+  params: Promise<{ poNumber: string }>;
 }) {
-  return <PoDetailPage poNumber={params.poNumber} />;
+  const { poNumber } = await params;
+  return <PoDetailPage poNumber={poNumber} />;
 }
