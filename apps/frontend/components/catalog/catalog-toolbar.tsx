@@ -99,13 +99,13 @@ export function CatalogToolbar({
           <div className="space-y-1.5">
             <span className="text-xs font-medium text-muted-foreground">Availability</span>
             <label className="flex h-9 items-center gap-2 rounded-md border bg-background px-3 text-sm font-medium">
-            <Checkbox
-              id="stock-filter"
-              checked={query.inStockOnly}
-              onCheckedChange={(checked) =>
-                onChange({ ...query, inStockOnly: checked === true })
-              }
-            />
+              <Checkbox
+                id="stock-filter"
+                checked={query.inStockOnly}
+                onCheckedChange={(checked) =>
+                  onChange({ ...query, inStockOnly: checked === true })
+                }
+              />
               <span>In stock only</span>
             </label>
           </div>
