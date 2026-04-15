@@ -11,6 +11,14 @@ import { ErrorState } from "@/components/common/error-state";
 import { TableSkeleton } from "@/components/common/loading-state";
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 import {
   catalogQueryToParams,
   DEFAULT_CATALOG_QUERY,
@@ -55,10 +63,10 @@ export function CatalogPage() {
       <PageHeader
         eyebrow="Catalog"
         title="Refinery equipment catalog"
-        description="Search approved refinery items, compare commercial terms, and build a single-supplier purchase order draft."
+        description="Compare approved refinery equipment and build a single-supplier purchase order draft."
       />
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
-        <section className="min-w-0">
+        <section className="min-w-0 space-y-3" aria-labelledby="catalog-results-title">
           <CatalogToolbar
             query={query}
             categories={categories}
@@ -67,15 +75,12 @@ export function CatalogPage() {
             onChange={setQuery}
           />
           {message ? (
-            <div
-              className="mb-4 flex items-center justify-between rounded-md border bg-card p-3 text-sm"
-              role="status"
-            >
-              <span>{message}</span>
+            <Alert className="flex items-center justify-between gap-3 py-3" aria-live="polite">
+              <AlertDescription>{message}</AlertDescription>
               <Button variant="ghost" size="sm" onClick={clearMessage}>
                 Dismiss
               </Button>
-            </div>
+            </Alert>
           ) : null}
           {catalogQuery.isLoading ? <TableSkeleton /> : null}
           {catalogQuery.isError ? (
@@ -95,14 +100,31 @@ export function CatalogPage() {
             />
           ) : null}
           {catalogQuery.isSuccess && items.length > 0 ? (
-            <CatalogTable
-              items={items}
-              supplierLock={draft.supplier}
-              onAdd={(item) => addItem(item)}
-            />
+            <Card className="overflow-hidden">
+              <CardHeader className="flex flex-col gap-2 border-b bg-card px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <CardTitle id="catalog-results-title">Approved items</CardTitle>
+                  <CardDescription>
+                    Pricing and lead times are snapshotted at submission.
+                  </CardDescription>
+                </div>
+                <div className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  {draft.supplier
+                    ? `Draft supplier: ${draft.supplier}`
+                    : "No supplier lock yet"}
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <CatalogTable
+                  items={items}
+                  supplierLock={draft.supplier}
+                  onAdd={(item) => addItem(item)}
+                />
+              </CardContent>
+            </Card>
           ) : null}
         </section>
-        <aside>
+        <aside className="xl:pt-0">
           <DraftSummaryCard draft={draft} />
         </aside>
       </div>

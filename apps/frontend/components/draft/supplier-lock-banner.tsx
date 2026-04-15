@@ -1,23 +1,27 @@
 import { LockKeyhole } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function SupplierLockBanner({ supplier }: { supplier: string | null }) {
   if (!supplier) {
     return (
-      <div className="rounded-md border border-dashed bg-card p-3 text-sm text-muted-foreground">
-        Add the first item to lock this draft to a supplier.
-      </div>
+      <Alert className="border-dashed bg-muted/25">
+        <AlertTitle>No supplier lock</AlertTitle>
+        <AlertDescription>
+          Add the first item to lock this draft to a supplier.
+        </AlertDescription>
+      </Alert>
     );
   }
 
   return (
-    <div className="flex items-start gap-3 rounded-md border bg-accent p-3 text-sm text-accent-foreground">
+    <Alert variant="accent" className="flex items-start gap-3">
       <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
       <div>
-        <p className="font-semibold">Supplier locked to {supplier}</p>
-        <p className="mt-1 text-accent-foreground/80">
+        <AlertTitle>Locked to {supplier}</AlertTitle>
+        <AlertDescription>
           Purchase orders can include items from one supplier only.
-        </p>
+        </AlertDescription>
       </div>
-    </div>
+    </Alert>
   );
 }

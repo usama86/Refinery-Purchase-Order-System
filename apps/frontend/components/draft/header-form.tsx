@@ -11,7 +11,13 @@ import { EmptyState } from "@/components/common/empty-state";
 import { PageHeader } from "@/components/common/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { useDraft } from "@/lib/use-draft";
 import {
   draftHeaderSchema,
@@ -90,12 +96,25 @@ export function HeaderForm() {
               htmlFor="paymentTerms"
               error={form.formState.errors.paymentTerms?.message}
             >
-              <Select id="paymentTerms" {...form.register("paymentTerms")}>
+              <Select
+                value={form.watch("paymentTerms")}
+                onValueChange={(value) =>
+                  form.setValue("paymentTerms", value, {
+                    shouldDirty: true,
+                    shouldValidate: true
+                  })
+                }
+              >
+                <SelectTrigger id="paymentTerms">
+                  <SelectValue placeholder="Payment terms" />
+                </SelectTrigger>
+                <SelectContent>
                 {paymentTerms.map((term) => (
-                  <option key={term} value={term}>
+                  <SelectItem key={term} value={term}>
                     {term}
-                  </option>
+                  </SelectItem>
                 ))}
+                </SelectContent>
               </Select>
             </FormField>
           </div>
