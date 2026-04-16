@@ -52,13 +52,13 @@ export function CatalogTable({
     <Table className="min-w-[980px]">
       <TableHeader className="bg-muted/50">
         <TableRow className="hover:bg-muted/50">
-          <TableHead className="w-[40%] pl-5">Item</TableHead>
+          <TableHead className="w-[38%] pl-5">Item</TableHead>
           <SortableHead
             label="Supplier"
             active={sort === "supplier-asc" ? "asc" : false}
             onSort={() => onSortChange("supplier-asc")}
           />
-          <TableHead>Category</TableHead>
+          <TableHead className="w-[132px]">Category</TableHead>
           <SortableHead
             label="Lead"
             active={
@@ -66,7 +66,7 @@ export function CatalogTable({
             }
             onSort={() => onSortChange(sort === "lead-asc" ? "lead-desc" : "lead-asc")}
           />
-          <TableHead>Stock</TableHead>
+          <TableHead className="w-[132px]">Stock</TableHead>
           <SortableHead
             label="Price"
             align="right"
@@ -114,10 +114,10 @@ export function CatalogTable({
                   </div>
                 </TableCell>
                 <TableCell className="py-3.5 font-medium">{item.supplier}</TableCell>
-                <TableCell>
+                <TableCell className="py-3.5">
                   <Badge
                     variant="secondary"
-                    className="bg-muted/60 font-medium text-foreground/90"
+                    className="whitespace-nowrap bg-muted/60 font-medium text-foreground/90"
                   >
                     {item.category}
                   </Badge>
@@ -125,13 +125,13 @@ export function CatalogTable({
                 <TableCell className="py-3.5 font-medium tabular-nums">
                   {item.leadTimeDays} days
                 </TableCell>
-                <TableCell>
+                <TableCell className="py-3.5">
                   <Badge
                     variant={item.inStock ? "accent" : "secondary"}
                     className={
                       item.inStock
-                        ? "bg-success/10 text-success ring-1 ring-success/15"
-                        : "bg-muted/80 text-muted-foreground"
+                        ? "whitespace-nowrap bg-success/10 text-success ring-1 ring-success/15"
+                        : "whitespace-nowrap bg-muted/80 text-muted-foreground"
                     }
                   >
                     {item.inStock ? "In stock" : "Backorder"}
