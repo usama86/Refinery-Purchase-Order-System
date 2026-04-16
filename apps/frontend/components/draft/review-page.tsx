@@ -89,7 +89,11 @@ export function ReviewPage() {
                 <Link href="/draft/header">Edit header</Link>
               </Button>
             </div>
-            <LineItemsEditor draft={draft} onQuantityChange={setQuantity} />
+            <LineItemsEditor
+              draft={draft}
+              onQuantityChange={setQuantity}
+              onRemoveLine={(itemId) => setQuantity(itemId, 0)}
+            />
           </div>
           <Card>
             <CardContent className="flex flex-col gap-4 pt-5 md:flex-row md:items-center md:justify-between">

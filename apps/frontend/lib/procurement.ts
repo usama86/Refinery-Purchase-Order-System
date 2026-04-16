@@ -186,3 +186,22 @@ export async function submitDraft(draft: PurchaseOrderDraft) {
   clearDraft();
   return order;
 }
+
+export async function transitionPurchaseOrder(
+  order: PurchaseOrder,
+  action: "approve" | "reject" | "fulfill"
+) {
+  const orderId = order.id ?? order.poNumber;
+  const actor = action === "fulfill" ? order.supplier : "Approvals Desk";
+  const response = await request<ApiOrder>(
+    `/procurement/purchase-orders/${orderId}/${action}`,
+    {
+      method: "POST",
+      headers: {
+        "Idempotency-Key": `${action}-${orderId}`
+      },
+      body: JSON.stringify({ actor })
+    }
+  );
+  return toPurchaseOrder(response);
+}

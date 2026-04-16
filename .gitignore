@@ -61,6 +61,7 @@ pids/
 *.seed
 *.pid.lock
 *.wasm
+*.zip
 __pycache__/
 **/__pycache__/
 *.py[cod]

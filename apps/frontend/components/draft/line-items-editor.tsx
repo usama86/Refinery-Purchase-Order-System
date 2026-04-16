@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,10 +15,12 @@ import { formatCurrency } from "@/lib/utils";
 export function LineItemsEditor({
   draft,
   onQuantityChange,
+  onRemoveLine,
   readonly = false
 }: {
   draft: PurchaseOrderDraft;
   onQuantityChange?: (itemId: string, quantity: number) => void | Promise<void>;
+  onRemoveLine?: (itemId: string) => void | Promise<void>;
   readonly?: boolean;
 }) {
   return (
@@ -30,6 +33,7 @@ export function LineItemsEditor({
             <TableHead>Unit</TableHead>
             <TableHead>Qty</TableHead>
             <TableHead className="text-right">Line total</TableHead>
+            {!readonly ? <TableHead className="text-right">Action</TableHead> : null}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -62,6 +66,20 @@ export function LineItemsEditor({
               <TableCell className="text-right font-semibold">
                 {formatCurrency(line.quantity * line.itemSnapshot.priceUsd)}
               </TableCell>
+              {!readonly ? (
+                <TableCell className="text-right">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    aria-label={`Remove ${line.itemSnapshot.name}`}
+                    onClick={() => onRemoveLine?.(line.itemId)}
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    Remove
+                  </Button>
+                </TableCell>
+              ) : null}
             </TableRow>
           ))}
         </TableBody>

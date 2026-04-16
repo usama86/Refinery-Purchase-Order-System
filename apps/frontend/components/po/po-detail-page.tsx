@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Download, Send } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { EmptyState } from "@/components/common/empty-state";
 import { ErrorState } from "@/components/common/error-state";
 import { TableSkeleton } from "@/components/common/loading-state";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Timeline } from "@/components/common/timeline";
 import { LineItemsEditor } from "@/components/draft/line-items-editor";
+import { PoLifecycleActions } from "@/components/po/po-lifecycle-actions";
 import { StatusLegend } from "@/components/po/status-legend";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,7 +30,7 @@ export function PoDetailPage({ poNumber }: { poNumber: string }) {
     return (
       <ErrorState
         title="Purchase order unavailable"
-        message="The mock procurement API could not load this purchase order."
+        message="The procurement service could not load this purchase order."
       />
     );
   }
@@ -38,7 +39,7 @@ export function PoDetailPage({ poNumber }: { poNumber: string }) {
     return (
       <EmptyState
         title="Purchase order not found"
-        description="The requested PO number is not available in local mock storage."
+        description="The requested purchase order is not available."
         action={
           <Button asChild>
             <Link href="/purchase-orders">Back to purchase orders</Link>
@@ -76,10 +77,6 @@ export function PoDetailPage({ poNumber }: { poNumber: string }) {
               <Download className="h-4 w-4" aria-hidden="true" />
               Export
             </Button>
-            <Button>
-              <Send className="h-4 w-4" aria-hidden="true" />
-              Send update
-            </Button>
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
@@ -91,6 +88,7 @@ export function PoDetailPage({ poNumber }: { poNumber: string }) {
       </div>
 
       <StatusLegend />
+      <PoLifecycleActions order={order} />
 
       <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
         <section className="space-y-5">

@@ -7,7 +7,7 @@ Interview assignment implementation for a Buyer-facing refinery purchase order w
 - `apps/frontend`: Next.js App Router frontend. It calls catalog-service and procurement-service directly.
 - `apps/catalog-service`: FastAPI service that owns refinery catalog items, search/filter/sort/pagination, item details, and dataset seeding.
 - `apps/procurement-service`: FastAPI service that owns drafts, purchase orders, line items, PO lifecycle, status timeline, idempotency, and PO number generation.
-- `apps/api-gateway`: Scaffold only. It is not part of the runtime path yet.
+- `apps/api-gateway`: intentionally omitted from this submission. The frontend calls the two services directly; a gateway can be added later for auth/routing policy.
 
 The implementation uses one PostgreSQL database for practicality, with logical ownership kept separate. Migrations create `catalog` and `procurement` schemas so each service owns its own tables.
 
@@ -78,6 +78,7 @@ Frontend:
 
 ```bash
 npm run test:frontend
+npm run test:coverage:frontend
 npm run build:frontend
 ```
 
@@ -93,3 +94,5 @@ cd apps/procurement-service && pip install ".[dev]" && pytest
 - Catalog data is seeded from `apps/catalog-service/app/data/refinery-items.json`.
 - Frontend keeps only a local draft id pointer; purchase order state lives in procurement-service.
 - Large production datasets should use server-side search/filter/sort/pagination, which the catalog API already models.
+- Deployment direction: run the frontend separately from the two FastAPI services, apply Alembic migrations during release, and point all services at the same managed PostgreSQL database with separate schemas.
+- Tradeoff: the frontend talks directly to backend services for assignment clarity. A gateway is intentionally out of scope until auth, aggregation, or cross-service policy is needed.

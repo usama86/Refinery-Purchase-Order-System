@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.db.base import Base
 from app.models.purchase_order import PurchaseOrderStatus
-from app.schemas.procurement import AddLineRequest, CatalogItemSnapshot, DraftHeader, StatusActionRequest
+from app.schemas.procurement import AddLineRequest, CatalogItemSnapshot, DraftHeader, StatusActionRequest, UpdateLineRequest
 from app.services.procurement_service import ProcurementService
 
 
@@ -99,6 +99,19 @@ def test_invalid_lifecycle_transition_is_blocked(service: ProcurementService):
     assert exc.value.status_code == 409
 
 
+def test_remove_final_line_clears_supplier_lock(service: ProcurementService):
+    draft = service.create_draft(header())
+    draft = service.add_line(draft.id, AddLineRequest(itemId="A"))
+    updated = service.update_line(
+        draft.id,
+        draft.lines[0].id,
+        UpdateLineRequest(quantity=0),
+    )
+
+    assert updated.lines == []
+    assert updated.supplier is None
+
+
 def test_status_timeline_for_approve_and_fulfill(service: ProcurementService):
     draft = service.create_draft(header())
     draft = service.add_line(draft.id, AddLineRequest(itemId="A"))
@@ -121,4 +134,3 @@ def test_status_timeline_for_approve_and_fulfill(service: ProcurementService):
         "Approved",
         "Fulfilled",
     ]
-

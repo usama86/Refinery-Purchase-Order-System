@@ -129,6 +129,7 @@ class ProcurementService:
                     order.supplier = None
             else:
                 line.quantity = payload.quantity
+        self.db.expire(order, ["lines"])
         self.db.refresh(order)
         return self.to_read(order)
 

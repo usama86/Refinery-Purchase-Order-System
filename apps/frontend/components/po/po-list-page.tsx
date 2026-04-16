@@ -39,7 +39,7 @@ export function PoListPage() {
       {ordersQuery.isError ? (
         <ErrorState
           title="Purchase orders unavailable"
-          message="The mock procurement API could not return submitted orders."
+          message="The procurement service could not return submitted orders."
         />
       ) : null}
       {ordersQuery.isSuccess && ordersQuery.data.length === 0 ? (

@@ -110,7 +110,7 @@ export function CatalogPage() {
           {catalogQuery.isError ? (
             <ErrorState
               title="Catalog unavailable"
-              message="The mock catalog API could not return items."
+              message="The catalog service could not return items."
             />
           ) : null}
           {catalogQuery.isSuccess && items.length === 0 ? (
