@@ -9,6 +9,9 @@
     "dev:frontend": "npm run dev --workspace @refinery/frontend",
     "build:frontend": "npm run build --workspace @refinery/frontend",
     "test:frontend": "npm run test --workspace @refinery/frontend",
-    "lint:frontend": "npm run lint --workspace @refinery/frontend"
+    "lint:frontend": "npm run lint --workspace @refinery/frontend",
+    "test:catalog": "cd apps/catalog-service && python3 -m pytest",
+    "test:procurement": "cd apps/procurement-service && python3 -m pytest",
+    "test:backend": "npm run test:catalog && npm run test:procurement"
   }
 }
