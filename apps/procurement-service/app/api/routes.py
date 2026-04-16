@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Header, Response
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -126,4 +126,3 @@ def get_timeline(
     purchase_order_id: str, db: Annotated[Session, Depends(get_db)]
 ) -> list[TimelineEventRead]:
     return ProcurementService(db).timeline(purchase_order_id)
-

@@ -25,6 +25,8 @@ build/
 # Test and coverage output
 coverage/
 **/coverage/
+.coverage
+**/.coverage
 test-results/
 **/test-results/
 playwright-report/
@@ -59,6 +61,15 @@ pids/
 *.seed
 *.pid.lock
 *.wasm
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+**/*.egg-info/
+.pytest_cache/
+**/.pytest_cache/
+.ruff_cache/
+**/.ruff_cache/
 
 # Editor directories and files
 .vscode/

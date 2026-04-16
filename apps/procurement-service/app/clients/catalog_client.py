@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import httpx
 
 from app.core.config import settings
@@ -20,4 +18,3 @@ class CatalogClient:
             raise CatalogClientError("Catalog item not found")
         response.raise_for_status()
         return CatalogItemSnapshot.model_validate(response.json())
-

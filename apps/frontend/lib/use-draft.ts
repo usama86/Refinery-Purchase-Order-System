@@ -8,6 +8,7 @@ import {
   updateDraftHeader,
   updateDraftLineQuantity
 } from "@/lib/procurement";
+import { clearDraft } from "@/lib/storage";
 import type { CatalogItem, DraftHeader, PurchaseOrderDraft } from "@/lib/types";
 
 export type AddLineResult =
@@ -88,6 +89,7 @@ export function useDraft() {
 
   const resetDraft = useCallback(() => {
     const empty = createEmptyDraft();
+    clearDraft();
     setDraft(empty);
   }, []);
 
@@ -100,4 +102,3 @@ export function useDraft() {
     resetDraft
   };
 }
-

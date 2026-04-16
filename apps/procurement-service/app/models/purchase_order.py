@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import date, datetime, timezone
 
-from sqlalchemy import Date, DateTime, Enum, ForeignKey, ForeignKeyConstraint, Integer, JSON, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import CheckConstraint, Date, DateTime, Enum, ForeignKey, ForeignKeyConstraint, Integer, JSON, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -48,13 +48,18 @@ class PurchaseOrder(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, onupdate=now_utc, nullable=False)
 
-    lines: Mapped[list["PurchaseOrderLine"]] = relationship(back_populates="purchase_order", cascade="all, delete-orphan")
+    lines: Mapped[list["PurchaseOrderLine"]] = relationship(
+        back_populates="purchase_order",
+        cascade="all, delete-orphan",
+        foreign_keys="PurchaseOrderLine.purchase_order_id",
+    )
     timeline: Mapped[list["StatusHistory"]] = relationship(back_populates="purchase_order", cascade="all, delete-orphan", order_by="StatusHistory.created_at")
 
 
 class PurchaseOrderLine(Base):
     __tablename__ = "purchase_order_lines"
     __table_args__ = (
+        CheckConstraint("quantity > 0", name="ck_purchase_order_lines_quantity_positive"),
         UniqueConstraint("purchase_order_id", "item_id", name="uq_purchase_order_lines_po_item"),
         ForeignKeyConstraint(
             ["purchase_order_id", "supplier"],
@@ -75,7 +80,9 @@ class PurchaseOrderLine(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, onupdate=now_utc, nullable=False)
 
-    purchase_order: Mapped[PurchaseOrder] = relationship(back_populates="lines")
+    purchase_order: Mapped[PurchaseOrder] = relationship(
+        back_populates="lines", foreign_keys=[purchase_order_id]
+    )
 
 
 class StatusHistory(Base):
@@ -104,4 +111,3 @@ class IdempotencyKey(Base):
     scope: Mapped[str] = mapped_column(String(160), nullable=False)
     response: Mapped[dict] = mapped_column(JSON, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, nullable=False)
-

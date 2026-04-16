@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from app.models.purchase_order import IdempotencyKey, PurchaseOrder, PurchaseOrderLine, StatusHistory
+from app.models.purchase_order import IdempotencyKey, PurchaseOrder, PurchaseOrderLine
 
 
 class ProcurementRepository:
@@ -44,4 +44,3 @@ class ProcurementRepository:
 
     def get_idempotency(self, key: str, scope: str) -> IdempotencyKey | None:
         return self.db.scalar(select(IdempotencyKey).where(IdempotencyKey.key == key, IdempotencyKey.scope == scope))
-
