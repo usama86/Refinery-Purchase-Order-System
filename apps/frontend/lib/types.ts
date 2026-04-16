@@ -38,9 +38,12 @@ export type CatalogSearchResult = {
 };
 
 export type DraftLine = {
+  id?: string;
   itemId: string;
   quantity: number;
   itemSnapshot: CatalogItem;
+  priceUsdSnapshot?: number | null;
+  leadTimeDaysSnapshot?: number | null;
 };
 
 export type DraftHeader = {
@@ -51,7 +54,9 @@ export type DraftHeader = {
 };
 
 export type PurchaseOrderDraft = {
+  id?: string;
   supplier: string | null;
+  status?: "Draft";
   lines: DraftLine[];
   header: DraftHeader;
   updatedAt: string;
@@ -67,6 +72,7 @@ export type StatusEvent = {
 };
 
 export type PurchaseOrder = {
+  id?: string;
   poNumber: string;
   supplier: string;
   status: PoStatus;

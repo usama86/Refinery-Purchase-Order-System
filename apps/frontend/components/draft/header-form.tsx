@@ -64,8 +64,8 @@ export function HeaderForm() {
       <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
         <form
           className="rounded-lg border bg-card p-6 shadow-sm"
-          onSubmit={form.handleSubmit((values) => {
-            setHeader(values);
+          onSubmit={form.handleSubmit(async (values) => {
+            await setHeader(values);
             router.push("/draft/review");
           })}
         >

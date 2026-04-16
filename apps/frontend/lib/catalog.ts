@@ -29,6 +29,9 @@ export function getCatalogCategories(items: CatalogItem[] = catalogItems) {
   return Array.from(new Set(items.map((item) => item.category))).sort();
 }
 
+const catalogApiBaseUrl =
+  process.env.NEXT_PUBLIC_CATALOG_API_BASE_URL ?? "http://localhost:8001";
+
 export function parseCatalogQuery(params: URLSearchParams): CatalogQuery {
   const sort = params.get("sort") as CatalogSort | null;
   const page = Number(params.get("page"));
@@ -120,7 +123,32 @@ export function paginateCatalog(
   };
 }
 
+function normalizeCatalogItem(item: CatalogItem): CatalogItem {
+  return {
+    ...item,
+    priceUsd: Number(item.priceUsd)
+  };
+}
+
+export async function listCatalogCategories() {
+  const response = await fetch(`${catalogApiBaseUrl}/catalog/categories`);
+  if (!response.ok) throw new Error("Catalog categories could not be loaded.");
+  return (await response.json()) as string[];
+}
+
 export async function searchCatalog(query: CatalogQuery) {
-  await new Promise((resolve) => setTimeout(resolve, 180));
-  return paginateCatalog(filterAndSortCatalog(catalogItems, query), query);
+  const params = catalogQueryToParams(query);
+  if (query.sort === DEFAULT_CATALOG_QUERY.sort) params.set("sort", query.sort);
+  if (query.page === DEFAULT_CATALOG_QUERY.page) params.set("page", String(query.page));
+  if (query.pageSize === DEFAULT_CATALOG_QUERY.pageSize) {
+    params.set("pageSize", String(query.pageSize));
+  }
+
+  const response = await fetch(`${catalogApiBaseUrl}/catalog/items?${params.toString()}`);
+  if (!response.ok) throw new Error("Catalog items could not be loaded.");
+  const result = (await response.json()) as CatalogSearchResult;
+  return {
+    ...result,
+    items: result.items.map(normalizeCatalogItem)
+  };
 }

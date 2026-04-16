@@ -17,7 +17,7 @@ export function LineItemsEditor({
   readonly = false
 }: {
   draft: PurchaseOrderDraft;
-  onQuantityChange?: (itemId: string, quantity: number) => void;
+  onQuantityChange?: (itemId: string, quantity: number) => void | Promise<void>;
   readonly?: boolean;
 }) {
   return (

@@ -2,6 +2,7 @@ import { createEmptyDraft } from "@/lib/draft";
 import type { PurchaseOrder, PurchaseOrderDraft } from "@/lib/types";
 
 const DRAFT_KEY = "refinery.po.draft";
+const DRAFT_ID_KEY = "refinery.po.draftId";
 const PURCHASE_ORDERS_KEY = "refinery.purchaseOrders";
 
 function canUseStorage() {
@@ -27,6 +28,17 @@ export function saveDraft(draft: PurchaseOrderDraft) {
 export function clearDraft() {
   if (!canUseStorage()) return;
   window.localStorage.removeItem(DRAFT_KEY);
+  window.localStorage.removeItem(DRAFT_ID_KEY);
+}
+
+export function loadDraftId() {
+  if (!canUseStorage()) return null;
+  return window.localStorage.getItem(DRAFT_ID_KEY);
+}
+
+export function saveDraftId(draftId: string) {
+  if (!canUseStorage()) return;
+  window.localStorage.setItem(DRAFT_ID_KEY, draftId);
 }
 
 export function loadPurchaseOrders(): PurchaseOrder[] {

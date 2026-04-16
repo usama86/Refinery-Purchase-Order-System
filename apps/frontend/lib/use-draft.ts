@@ -1,56 +1,95 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createEmptyDraft } from "@/lib/draft";
 import {
-  addItemToDraft,
-  createEmptyDraft,
+  addDraftLine,
+  getOrCreateDraft,
   updateDraftHeader,
-  updateDraftQuantity
-} from "@/lib/draft";
-import { loadDraft, saveDraft } from "@/lib/storage";
+  updateDraftLineQuantity
+} from "@/lib/procurement";
 import type { CatalogItem, DraftHeader, PurchaseOrderDraft } from "@/lib/types";
+
+export type AddLineResult =
+  | { ok: true; draft: PurchaseOrderDraft; message: string }
+  | { ok: false; draft: PurchaseOrderDraft; message: string };
 
 export function useDraft() {
   const [draft, setDraft] = useState<PurchaseOrderDraft>(() => createEmptyDraft());
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setDraft(loadDraft());
-    setHydrated(true);
-  }, []);
-
-  const persist = useCallback((nextDraft: PurchaseOrderDraft) => {
-    setDraft(nextDraft);
-    saveDraft(nextDraft);
+    let active = true;
+    getOrCreateDraft()
+      .then((nextDraft) => {
+        if (active) setDraft(nextDraft);
+      })
+      .finally(() => {
+        if (active) setHydrated(true);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const addItem = useCallback(
-    (item: CatalogItem) => {
-      const result = addItemToDraft(draft, item);
-      if (result.ok) persist(result.draft);
-      return result;
+    async (item: CatalogItem): Promise<AddLineResult> => {
+      if (!draft.id) {
+        return {
+          ok: false,
+          draft,
+          message: "Draft is still initializing. Try again in a moment."
+        };
+      }
+
+      try {
+        const existing = draft.lines.some((line) => line.itemId === item.id);
+        const nextDraft = await addDraftLine(draft.id, item.id);
+        setDraft(nextDraft);
+        return {
+          ok: true,
+          draft: nextDraft,
+          message: existing ? "Quantity increased." : "Item added to draft."
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          draft,
+          message:
+            error instanceof Error
+              ? error.message
+              : "The item could not be added to the draft."
+        };
+      }
     },
-    [draft, persist]
+    [draft]
   );
 
   const setQuantity = useCallback(
-    (itemId: string, quantity: number) => {
-      persist(updateDraftQuantity(draft, itemId, quantity));
+    async (itemId: string, quantity: number) => {
+      const nextDraft = await updateDraftLineQuantity(
+        draft,
+        itemId,
+        Math.max(0, Math.floor(quantity))
+      );
+      setDraft(nextDraft);
     },
-    [draft, persist]
+    [draft]
   );
 
   const setHeader = useCallback(
-    (header: DraftHeader) => {
-      persist(updateDraftHeader(draft, header));
+    async (header: DraftHeader) => {
+      if (!draft.id) throw new Error("Draft is still initializing.");
+      const nextDraft = await updateDraftHeader(draft.id, header);
+      setDraft(nextDraft);
     },
-    [draft, persist]
+    [draft.id]
   );
 
   const resetDraft = useCallback(() => {
     const empty = createEmptyDraft();
-    persist(empty);
-  }, [persist]);
+    setDraft(empty);
+  }, []);
 
   return {
     draft,
@@ -61,3 +100,4 @@ export function useDraft() {
     resetDraft
   };
 }
+

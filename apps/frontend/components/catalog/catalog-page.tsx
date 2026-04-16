@@ -22,7 +22,7 @@ import {
 import {
   catalogQueryToParams,
   DEFAULT_CATALOG_QUERY,
-  getCatalogCategories,
+  listCatalogCategories,
   parseCatalogQuery,
   searchCatalog
 } from "@/lib/catalog";
@@ -42,8 +42,12 @@ export function CatalogPage() {
     () => ({ ...query, search: debouncedSearch }),
     [debouncedSearch, query]
   );
-  const categories = useMemo(() => getCatalogCategories(), []);
   const { draft, addItem } = useDraft();
+
+  const categoriesQuery = useQuery({
+    queryKey: ["catalog-categories"],
+    queryFn: listCatalogCategories
+  });
 
   const catalogQuery = useQuery({
     queryKey: ["catalog", effectiveQuery],
@@ -96,7 +100,7 @@ export function CatalogPage() {
         <section className="min-w-0 space-y-3" aria-labelledby="catalog-results-title">
           <CatalogActionRow
             query={query}
-            categories={categories}
+            categories={categoriesQuery.data ?? []}
             activeFilterCount={activeFilterCount}
             onChange={updateQuery}
             onReset={resetQuery}
@@ -140,8 +144,8 @@ export function CatalogPage() {
                   supplierLock={draft.supplier}
                   sort={query.sort}
                   onSortChange={(sort) => setQuery({ ...query, sort, page: 1 })}
-                  onAdd={(item) => {
-                    const result = addItem(item);
+                  onAdd={async (item) => {
+                    const result = await addItem(item);
                     if (result.ok) {
                       toast.success(result.message, {
                         description: item.name
