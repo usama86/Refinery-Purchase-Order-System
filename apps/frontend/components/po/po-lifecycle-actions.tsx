@@ -64,8 +64,8 @@ export function PoLifecycleActions({ order }: { order: PurchaseOrder }) {
               onConfirm={(action) => mutation.mutate(action)}
               trigger={
                 <Button
-                  variant="outline"
-                  className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  variant="destructive"
+                  className="shadow-sm"
                   disabled={mutation.isPending}
                 >
                   <XCircle className="h-4 w-4" aria-hidden="true" />
