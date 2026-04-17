@@ -38,6 +38,7 @@ export function CatalogPage() {
     parseCatalogQuery(searchParams)
   );
   const debouncedSearch = useDebounce(query.search, 320);
+  const [addingItemId, setAddingItemId] = useState<string | null>(null);
   const effectiveQuery = useMemo(
     () => ({ ...query, search: debouncedSearch }),
     [debouncedSearch, query]
@@ -143,17 +144,23 @@ export function CatalogPage() {
                   items={items}
                   supplierLock={draft.supplier}
                   sort={query.sort}
+                  addingItemId={addingItemId}
                   onSortChange={(sort) => setQuery({ ...query, sort, page: 1 })}
                   onAdd={async (item) => {
-                    const result = await addItem(item);
-                    if (result.ok) {
-                      toast.success(result.message, {
-                        description: item.name
-                      });
-                    } else {
-                      toast.error("Supplier mismatch blocked", {
-                        description: result.message
-                      });
+                    setAddingItemId(item.id);
+                    try {
+                      const result = await addItem(item);
+                      if (result.ok) {
+                        toast.success(result.message, {
+                          description: item.name
+                        });
+                      } else {
+                        toast.error("Supplier mismatch blocked", {
+                          description: result.message
+                        });
+                      }
+                    } finally {
+                      setAddingItemId(null);
                     }
                   }}
                 />
@@ -171,7 +178,7 @@ export function CatalogPage() {
             </Card>
           ) : null}
         </section>
-        <aside className="xl:pt-0">
+        <aside className="xl:self-start">
           <DraftSummaryCard draft={draft} />
         </aside>
       </div>

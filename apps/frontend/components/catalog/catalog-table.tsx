@@ -6,6 +6,7 @@ import {
   ArrowUp,
   ChevronDown,
   ChevronsUpDown,
+  Loader2,
   LockKeyhole
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,16 +26,19 @@ export function CatalogTable({
   items,
   supplierLock,
   sort,
+  addingItemId,
   onSortChange,
   onAdd
 }: {
   items: CatalogItem[];
   supplierLock: string | null;
   sort: CatalogSort;
+  addingItemId: string | null;
   onSortChange: (sort: CatalogSort) => void;
-  onAdd: (item: CatalogItem) => void;
+  onAdd: (item: CatalogItem) => void | Promise<void>;
 }) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const addInProgress = Boolean(addingItemId);
 
   const toggleSpecs = (itemId: string) => {
     setExpandedIds((current) => {
@@ -81,6 +85,7 @@ export function CatalogTable({
       <TableBody>
         {items.map((item) => {
           const blocked = Boolean(supplierLock && supplierLock !== item.supplier);
+          const adding = addingItemId === item.id;
           const expanded = expandedIds.has(item.id);
 
           return (
@@ -144,10 +149,13 @@ export function CatalogTable({
                   <Button
                     size="sm"
                     variant={blocked ? "outline" : "default"}
-                    disabled={blocked}
+                    disabled={blocked || addInProgress}
+                    aria-busy={adding}
                     aria-label={
                       blocked
                         ? `Cannot add ${item.name}; draft is locked to ${supplierLock}`
+                        : adding
+                          ? `Adding ${item.name} to draft`
                         : `Add ${item.name} to draft`
                     }
                     title={
@@ -158,7 +166,12 @@ export function CatalogTable({
                     onClick={() => onAdd(item)}
                     className="min-w-[92px]"
                   >
-                    {blocked ? (
+                    {adding ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                        Adding
+                      </>
+                    ) : blocked ? (
                       <>
                         <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" />
                         Blocked
