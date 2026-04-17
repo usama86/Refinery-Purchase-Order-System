@@ -78,10 +78,10 @@ export function PoDetailPage({ poNumber }: { poNumber: string }) {
               variant="ghost"
               size="sm"
               onClick={() => exportPurchaseOrder(order)}
-              aria-label={`Export ${order.poNumber} as CSV`}
+              aria-label={`Export ${order.poNumber} for Excel`}
             >
               <Download className="h-4 w-4" aria-hidden="true" />
-              Export CSV
+              Export Excel
             </Button>
           </div>
         </div>
@@ -161,51 +161,132 @@ function Metadata({ label, value }: { label: string; value: string }) {
 }
 
 function exportPurchaseOrder(order: PurchaseOrder) {
-  const rows = [
-    ["Purchase order", order.poNumber],
+  const summaryRows = [
+    ["Purchase Order", order.poNumber],
     ["Status", order.status],
     ["Supplier", order.supplier],
     ["Requestor", order.header.requestor],
     ["Cost center", order.header.costCenter],
-    ["Needed by", order.header.neededBy],
+    ["Needed by", formatDate(order.header.neededBy)],
     ["Payment terms", order.header.paymentTerms],
-    ["Total USD", String(order.totalUsd)],
-    [],
-    ["Line items"],
-    ["Item ID", "Name", "Supplier", "Quantity", "Unit price USD", "Lead time days", "Line total USD"],
-    ...order.lines.map((line) => [
-      line.itemSnapshot.id,
-      line.itemSnapshot.name,
-      line.itemSnapshot.supplier,
-      String(line.quantity),
-      String(line.priceUsdSnapshot ?? line.itemSnapshot.priceUsd),
-      String(line.leadTimeDaysSnapshot ?? line.itemSnapshot.leadTimeDays),
-      String(line.quantity * Number(line.priceUsdSnapshot ?? line.itemSnapshot.priceUsd))
-    ]),
-    [],
-    ["Status history"],
-    ["Status", "At", "Actor", "Note"],
-    ...order.timeline.map((event) => [
-      event.status,
-      event.at,
-      event.actor,
-      event.note
-    ])
+    ["Total value", formatCurrency(order.totalUsd)]
   ];
 
-  const csv = rows.map((row) => row.map(escapeCsvValue).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const html = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font-family: Calibri, Arial, sans-serif; color: #111827; }
+      table { border-collapse: collapse; margin-bottom: 18px; table-layout: fixed; }
+      th, td { border: 1px solid #d1d5db; padding: 8px 10px; vertical-align: top; }
+      th { background: #e8f0ef; font-weight: 700; text-align: left; }
+      .title { font-size: 18px; font-weight: 700; background: #0f5f56; color: #ffffff; }
+      .section { font-size: 14px; font-weight: 700; background: #f3f4f6; }
+      .label { width: 160px; font-weight: 700; background: #f9fafb; }
+      .number { text-align: right; }
+      .muted { color: #4b5563; }
+    </style>
+  </head>
+  <body>
+    <table>
+      <colgroup>
+        <col style="width: 180px" />
+        <col style="width: 260px" />
+      </colgroup>
+      <tr><td class="title" colspan="2">${escapeHtml(order.poNumber)}</td></tr>
+      <tr><td class="section" colspan="2">Purchase Order Summary</td></tr>
+      ${summaryRows
+        .map(
+          ([label, value]) =>
+            `<tr><td class="label">${escapeHtml(label)}</td><td>${escapeHtml(value)}</td></tr>`
+        )
+        .join("")}
+    </table>
+
+    <table>
+      <colgroup>
+        <col style="width: 120px" />
+        <col style="width: 320px" />
+        <col style="width: 140px" />
+        <col style="width: 90px" />
+        <col style="width: 130px" />
+        <col style="width: 130px" />
+        <col style="width: 130px" />
+      </colgroup>
+      <tr><td class="section" colspan="7">Line items</td></tr>
+      <tr>
+        <th>Item ID</th>
+        <th>Name</th>
+        <th>Supplier</th>
+        <th>Quantity</th>
+        <th>Unit price</th>
+        <th>Lead time</th>
+        <th>Line total</th>
+      </tr>
+      ${order.lines
+        .map((line) => {
+          const unitPrice = Number(line.priceUsdSnapshot ?? line.itemSnapshot.priceUsd);
+          const leadTime = line.leadTimeDaysSnapshot ?? line.itemSnapshot.leadTimeDays;
+
+          return `<tr>
+            <td>${escapeHtml(line.itemSnapshot.id)}</td>
+            <td>${escapeHtml(line.itemSnapshot.name)}</td>
+            <td>${escapeHtml(line.itemSnapshot.supplier)}</td>
+            <td class="number">${line.quantity}</td>
+            <td class="number">${escapeHtml(formatCurrency(unitPrice))}</td>
+            <td class="number">${leadTime} days</td>
+            <td class="number">${escapeHtml(formatCurrency(line.quantity * unitPrice))}</td>
+          </tr>`;
+        })
+        .join("")}
+    </table>
+
+    <table>
+      <colgroup>
+        <col style="width: 130px" />
+        <col style="width: 170px" />
+        <col style="width: 150px" />
+        <col style="width: 360px" />
+      </colgroup>
+      <tr><td class="section" colspan="4">Status history</td></tr>
+      <tr>
+        <th>Status</th>
+        <th>At</th>
+        <th>Actor</th>
+        <th>Note</th>
+      </tr>
+      ${order.timeline
+        .map(
+          (event) => `<tr>
+            <td>${escapeHtml(event.status)}</td>
+            <td>${escapeHtml(formatDate(event.at))}</td>
+            <td>${escapeHtml(event.actor)}</td>
+            <td class="muted">${escapeHtml(event.note)}</td>
+          </tr>`
+        )
+        .join("")}
+    </table>
+  </body>
+</html>`;
+
+  const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${order.poNumber}.csv`;
+  link.download = `${order.poNumber}.xls`;
   document.body.appendChild(link);
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
 }
 
-function escapeCsvValue(value: string | number | null | undefined) {
+function escapeHtml(value: string | number | null | undefined) {
   const text = String(value ?? "");
-  return /[",\n]/.test(text) ? `"${text.replaceAll("\"", "\"\"")}"` : text;
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
