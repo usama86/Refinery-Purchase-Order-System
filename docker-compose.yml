@@ -1,12 +1,30 @@
 services:
-  frontend:
+  catalog-service:
     build:
-      context: ./apps/frontend
-    command: npm run dev
+      context: ./apps/catalog-service
     ports:
-      - "3000:3000"
-    volumes:
-      - ./apps/frontend:/app
-      - /app/node_modules
+      - "8001:8001"
     environment:
-      - NEXT_TELEMETRY_DISABLED=1
+      APP_NAME: Refinery Catalog Service
+      APP_ENV: local
+      APP_PORT: "8001"
+      DATABASE_URL: ${DATABASE_URL}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      SEED_CATALOG_ON_STARTUP: "true"
+
+  procurement-service:
+    build:
+      context: ./apps/procurement-service
+    ports:
+      - "8002:8002"
+    environment:
+      APP_NAME: Refinery Procurement Service
+      APP_ENV: local
+      APP_PORT: "8002"
+      DATABASE_URL: ${DATABASE_URL}
+      CATALOG_SERVICE_BASE_URL: http://catalog-service:8001
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      PO_NUMBER_PREFIX: ${PO_NUMBER_PREFIX:-PO}
+    depends_on:
+      - catalog-service
+

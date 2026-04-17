@@ -3,12 +3,16 @@ import type { PoStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const statusClasses: Record<PoStatus, string> = {
-  Submitted: "bg-accent text-accent-foreground",
-  Approved: "bg-emerald-100 text-emerald-800",
-  Rejected: "bg-red-100 text-red-800",
-  Fulfilled: "bg-zinc-900 text-white"
+  Submitted: "border-primary/20 bg-accent text-accent-foreground",
+  Approved: "bg-success/12 text-success",
+  Rejected: "bg-destructive/12 text-destructive",
+  Fulfilled: "bg-foreground text-background"
 };
 
 export function StatusBadge({ status }: { status: PoStatus }) {
-  return <Badge className={cn(statusClasses[status])}>{status}</Badge>;
+  return (
+    <Badge variant="outline" className={cn(statusClasses[status])}>
+      {status}
+    </Badge>
+  );
 }

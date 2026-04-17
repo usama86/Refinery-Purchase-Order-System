@@ -1,29 +1,10 @@
-# Frontend Local Run
+# Frontend Notes
 
-The frontend lives in `apps/frontend` and uses Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui-style local primitives, TanStack Query, React Hook Form, Zod, Vitest, and React Testing Library.
+The frontend is a Buyer-facing Next.js App Router application. It talks directly to:
 
-## Commands
+- `catalog-service` for catalog search, filtering, sorting, pagination, categories, and item details.
+- `procurement-service` for drafts, line items, header updates, submission, purchase order list/detail, lifecycle actions, and timeline history.
 
-From the repository root:
+The catalog query contract is server-ready: `q`, `category`, `stock`, `sort`, `page`, and `pageSize` are synchronized with URL parameters. Larger datasets should keep search/filter/sort/pagination server-side behind the same API shape.
 
-```bash
-npm install
-npm run dev:frontend
-```
-
-Then open:
-
-```text
-http://localhost:3000
-```
-
-Useful checks:
-
-```bash
-npm run test:frontend
-npm run build:frontend
-```
-
-## Frontend Data
-
-Catalog data is loaded from `apps/frontend/data/refinery-items.json`, copied from the provided `refinery_items_50_5suppliers_strict.json` file. Purchase orders are handled through a local mock procurement API and persisted in browser storage so the UI can later swap to real services without route-level rewrites.
+The browser keeps only a draft id pointer so refreshes can resume an active draft. Purchase order data and business rules are owned by `procurement-service`.

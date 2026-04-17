@@ -1,18 +1,20 @@
 # Refinery Purchase Order System
 
-This monorepo contains the frontend-first implementation for the Refinery Purchase Order System interview assignment.
+This monorepo contains the frontend and backend implementation for the Refinery Purchase Order System interview assignment.
 
 ## Current Scope
 
 - `apps/frontend`: Buyer-facing Next.js application.
-- `apps/catalog-service`: Backend service boundary placeholder only.
-- `apps/procurement-service`: Backend service boundary placeholder only.
-- `apps/api-gateway`: Scaffold placeholder only. Do not wire until backend work begins.
+- `apps/catalog-service`: FastAPI service that owns catalog item data and search/read APIs.
+- `apps/procurement-service`: FastAPI service that owns drafts, purchase orders, lines, status lifecycle, and timeline history.
 - `docs`: Assignment and local run notes.
 
 ## Engineering Notes
 
 - Keep route files thin and move feature logic into focused modules.
-- Enforce single-supplier draft behavior in the data/domain layer and reflect it clearly in the UI.
-- Use local mock APIs for frontend flows until backend services are implemented.
+- Keep FastAPI route handlers thin; put business rules in service modules and persistence in repository modules.
+- Enforce single-supplier draft behavior in procurement-service, with DB constraints where practical, and reflect conflicts clearly in the UI.
+- Keep catalog data ownership in catalog-service. Procurement may snapshot catalog item data, but should not own catalog search.
+- Use transactions for draft creation, line mutations, submit, status transitions, and audit/timeline writes.
+- Use `Idempotency-Key` for submit and status transition actions when callers can retry.
 - No authentication; the UI assumes a logged-in Buyer.
