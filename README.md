@@ -149,8 +149,8 @@ Coverage:
 
 ```bash
 npm run test:coverage:frontend
-cd apps/catalog-service && pytest --cov=app --cov-report=term-missing
-cd apps/procurement-service && pytest --cov=app --cov-report=term-missing
+cd apps/catalog-service && pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+cd apps/procurement-service && pytest --cov=app --cov-report=term-missing --cov-fail-under=80
 ```
 
 ## Notes
