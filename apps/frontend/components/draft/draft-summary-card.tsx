@@ -30,7 +30,7 @@ export function DraftSummaryCard({
   const canContinue = !disabled && draft.lines.length > 0;
 
   return (
-    <Card className="xl:sticky xl:top-24">
+    <Card>
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -72,24 +72,26 @@ export function DraftSummaryCard({
               <p className="text-xs text-muted-foreground">{draft.supplier}</p>
             </div>
             <Separator />
-            {draft.lines.map((line) => (
-              <div
-                key={line.itemId}
-                className="flex items-start justify-between gap-3 rounded-md border bg-muted/20 p-3"
-              >
-                <div className="min-w-0">
-                  <p className="line-clamp-2 text-sm font-medium">
-                    {line.itemSnapshot.name}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Qty {line.quantity} x {formatCurrency(line.itemSnapshot.priceUsd)}
-                  </p>
+            <div className="space-y-2">
+              {draft.lines.map((line) => (
+                <div
+                  key={line.itemId}
+                  className="flex items-start justify-between gap-3 rounded-md border bg-muted/20 p-3"
+                >
+                  <div className="min-w-0">
+                    <p className="line-clamp-2 text-sm font-medium">
+                      {line.itemSnapshot.name}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Qty {line.quantity} x {formatCurrency(line.itemSnapshot.priceUsd)}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-semibold">
+                    {formatCurrency(line.quantity * line.itemSnapshot.priceUsd)}
+                  </span>
                 </div>
-                <span className="shrink-0 text-sm font-semibold">
-                  {formatCurrency(line.quantity * line.itemSnapshot.priceUsd)}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ) : null}
         {canContinue ? (
