@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { DraftSummaryCard } from "@/components/draft/draft-summary-card";
+import { DraftItemsPreview } from "@/components/draft/draft-items-preview";
+import { DraftReadinessChecklist } from "@/components/draft/draft-readiness-checklist";
+import { DraftWorkflowSkeleton } from "@/components/draft/draft-workflow-skeleton";
 import { WorkflowStepper } from "@/components/draft/workflow-stepper";
 import { FormField } from "@/components/forms/form-field";
 import { EmptyState } from "@/components/common/empty-state";
@@ -34,10 +37,15 @@ export function HeaderForm() {
     defaultValues: draft.header,
     mode: "onBlur"
   });
+  const watchedHeader = form.watch();
 
   useEffect(() => {
     if (hydrated) form.reset(draft.header);
   }, [draft.header, form, hydrated]);
+
+  if (!hydrated) {
+    return <DraftWorkflowSkeleton />;
+  }
 
   if (hydrated && draft.lines.length === 0) {
     return (
@@ -61,9 +69,9 @@ export function HeaderForm() {
         description="Complete the commercial metadata before reviewing line items and submitting the purchase order."
       />
       <WorkflowStepper currentStep={1} />
-      <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
+      <div className="grid items-start gap-5 xl:grid-cols-[1fr_360px]">
         <form
-          className="rounded-lg border bg-card p-6 shadow-sm"
+          className="self-start rounded-lg border bg-card p-6 shadow-sm"
           onSubmit={form.handleSubmit(async (values) => {
             await setHeader(values);
             router.push("/draft/review");
@@ -117,6 +125,14 @@ export function HeaderForm() {
                 </SelectContent>
               </Select>
             </FormField>
+          </div>
+          <div className="mt-6 grid gap-4 border-t pt-5 lg:grid-cols-[0.95fr_1.05fr]">
+            <DraftReadinessChecklist
+              header={watchedHeader}
+              supplier={draft.supplier}
+              lineCount={draft.lines.length}
+            />
+            <DraftItemsPreview draft={draft} />
           </div>
           <div className="mt-8 flex flex-col gap-3 border-t pt-5 sm:flex-row sm:justify-between">
             <Button type="button" variant="outline" asChild>
