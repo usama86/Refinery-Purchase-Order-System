@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { DraftSummaryCard } from "@/components/draft/draft-summary-card";
+import { DraftWorkflowSkeleton } from "@/components/draft/draft-workflow-skeleton";
 import { LineItemsEditor } from "@/components/draft/line-items-editor";
 import { SupplierLockBanner } from "@/components/draft/supplier-lock-banner";
 import { WorkflowStepper } from "@/components/draft/workflow-stepper";
@@ -30,6 +31,10 @@ export function ReviewPage() {
     }
   });
 
+  if (!hydrated) {
+    return <DraftWorkflowSkeleton />;
+  }
+
   if (hydrated && draft.lines.length === 0) {
     return (
       <EmptyState
@@ -51,9 +56,13 @@ export function ReviewPage() {
         title="Review purchase order"
         description="Validate supplier, commercial metadata, quantities, and snapshotted pricing before submission."
       />
-      <WorkflowStepper currentStep={2} />
-      <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
-        <section className="space-y-5">
+      <WorkflowStepper
+        currentStep={2}
+        completedSteps={[1]}
+        editableSteps={[{ step: 1, href: "/draft/header" }]}
+      />
+      <div className="grid items-start gap-5 xl:grid-cols-[1fr_360px]">
+        <section className="self-start space-y-5">
           <SupplierLockBanner supplier={draft.supplier} />
           <Card>
             <CardHeader>
