@@ -75,12 +75,13 @@ export function PoDetailPage({ poNumber }: { poNumber: string }) {
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button
-              variant="outline"
+              variant="ghost"
+              size="sm"
               onClick={() => exportPurchaseOrder(order)}
               aria-label={`Export ${order.poNumber} as CSV`}
             >
               <Download className="h-4 w-4" aria-hidden="true" />
-              Export
+              Export CSV
             </Button>
           </div>
         </div>

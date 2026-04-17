@@ -28,6 +28,6 @@ Procurement wraps critical workflows in transactions:
 
 Mutation retries are handled with `Idempotency-Key` on submit and lifecycle transition endpoints. The service stores the serialized response by action scope, then returns the same response for repeated keys.
 
-## Gateway Scope
+## Runtime Scope
 
-The API gateway scaffold is intentionally omitted from the runtime scope. The frontend calls `catalog-service` and `procurement-service` directly. A future gateway can centralize routing, auth, aggregation, and cross-service policies without changing service ownership.
+The shipped runtime contains only the frontend, `catalog-service`, and `procurement-service`. The frontend calls both services directly for assignment clarity.

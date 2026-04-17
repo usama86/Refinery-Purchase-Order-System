@@ -7,7 +7,6 @@ Interview assignment implementation for a Buyer-facing refinery purchase order w
 - `apps/frontend`: Next.js App Router frontend. It calls catalog-service and procurement-service directly.
 - `apps/catalog-service`: FastAPI service that owns refinery catalog items, search/filter/sort/pagination, item details, and dataset seeding.
 - `apps/procurement-service`: FastAPI service that owns drafts, purchase orders, line items, PO lifecycle, status timeline, idempotency, and PO number generation.
-- `apps/api-gateway`: intentionally omitted from this submission. The frontend calls the two services directly; a gateway can be added later for auth/routing policy.
 
 The implementation uses one PostgreSQL database for practicality, with logical ownership kept separate. Migrations create `catalog` and `procurement` schemas so each service owns its own tables.
 
@@ -27,6 +26,14 @@ Create a root `.env` for Docker Compose:
 cp .env.example .env
 ```
 
+Root variables:
+
+```bash
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST/neondb?sslmode=require
+ALLOWED_ORIGINS=http://localhost:3000
+PO_NUMBER_PREFIX=PO
+```
+
 Set `DATABASE_URL` from your Neon values, for example:
 
 ```bash
@@ -37,6 +44,35 @@ Create frontend env:
 
 ```bash
 cp apps/frontend/.env.example apps/frontend/.env.local
+```
+
+Frontend variables:
+
+```bash
+NEXT_PUBLIC_CATALOG_API_BASE_URL=http://localhost:8001
+NEXT_PUBLIC_PROCUREMENT_API_BASE_URL=http://localhost:8002
+```
+
+Catalog service variables:
+
+```bash
+APP_NAME=Refinery Catalog Service
+APP_ENV=local
+APP_PORT=8001
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST/neondb?sslmode=require
+ALLOWED_ORIGINS=http://localhost:3000
+```
+
+Procurement service variables:
+
+```bash
+APP_NAME=Refinery Procurement Service
+APP_ENV=local
+APP_PORT=8002
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST/neondb?sslmode=require
+CATALOG_SERVICE_BASE_URL=http://catalog-service:8001
+ALLOWED_ORIGINS=http://localhost:3000
+PO_NUMBER_PREFIX=PO
 ```
 
 ## Run Locally
@@ -89,10 +125,20 @@ cd apps/catalog-service && pip install ".[dev]" && pytest
 cd apps/procurement-service && pip install ".[dev]" && pytest
 ```
 
+Coverage:
+
+```bash
+npm run test:coverage:frontend
+cd apps/catalog-service && pytest --cov=app --cov-report=term-missing
+cd apps/procurement-service && pytest --cov=app --cov-report=term-missing
+```
+
 ## Notes
 
 - Catalog data is seeded from `apps/catalog-service/app/data/refinery-items.json`.
-- Frontend keeps only a local draft id pointer; purchase order state lives in procurement-service.
+- Frontend keeps only a browser draft id pointer; purchase order state lives in procurement-service.
+- No authentication is implemented; the assignment assumes a logged-in Buyer role.
 - Large production datasets should use server-side search/filter/sort/pagination, which the catalog API already models.
 - Deployment direction: run the frontend separately from the two FastAPI services, apply Alembic migrations during release, and point all services at the same managed PostgreSQL database with separate schemas.
-- Tradeoff: the frontend talks directly to backend services for assignment clarity. A gateway is intentionally out of scope until auth, aggregation, or cross-service policy is needed.
+- Tradeoff: the frontend talks directly to backend services for assignment clarity.
+- Intentional scope limits: no authentication, no message broker, and no additional routing layer.

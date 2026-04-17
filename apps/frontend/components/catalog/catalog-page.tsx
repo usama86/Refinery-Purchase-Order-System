@@ -118,7 +118,7 @@ export function CatalogPage() {
               title={noFilters ? "No catalog items available" : "No matching items"}
               description={
                 noFilters
-                  ? "The local dataset did not return any refinery items."
+                  ? "The catalog service did not return any refinery items."
                   : "Adjust the search, category, stock filter, or sort order to broaden the result set."
               }
             />

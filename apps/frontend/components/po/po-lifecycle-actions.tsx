@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, PackageCheck, XCircle } from "lucide-react";
+import { toast } from "sonner";
 import { ErrorState } from "@/components/common/error-state";
 import {
   AlertDialog,
@@ -28,6 +29,9 @@ export function PoLifecycleActions({ order }: { order: PurchaseOrder }) {
       queryClient.setQueryData(["purchase-order", order.poNumber], nextOrder);
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
       queryClient.invalidateQueries({ queryKey: ["purchase-order", order.poNumber] });
+      toast.success("Purchase order updated.", {
+        description: `${nextOrder.poNumber} is now ${nextOrder.status.toLowerCase()}.`
+      });
     }
   });
 
