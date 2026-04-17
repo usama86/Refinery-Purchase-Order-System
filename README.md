@@ -95,6 +95,18 @@ ALLOWED_ORIGINS=http://localhost:3000
 PO_NUMBER_PREFIX=PO
 ```
 
+For deployed frontends, set `ALLOWED_ORIGINS` on both backend services to the exact browser origin of the frontend, without a path:
+
+```bash
+ALLOWED_ORIGINS=https://your-frontend-domain.example
+```
+
+For multiple frontend domains, use a comma-separated list:
+
+```bash
+ALLOWED_ORIGINS=http://localhost:3000,https://your-frontend-domain.example
+```
+
 ## Run Locally
 
 Install frontend dependencies:
