@@ -137,18 +137,24 @@ function LifecycleActionDialog({
       <AlertDialogTrigger asChild disabled={disabled}>
         {trigger}
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
+      <AlertDialogContent className="max-w-lg">
+        <AlertDialogHeader className="space-y-3">
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription className="max-w-prose leading-6">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+        <AlertDialogFooter className="mt-2 gap-3 border-t pt-5">
+          <AlertDialogCancel disabled={isPending} className="min-w-28">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             disabled={isPending}
             onClick={() => onConfirm(action)}
             className={
-              destructive ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""
+              destructive
+                ? "min-w-36 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                : "min-w-36"
             }
           >
             {isPending ? "Updating..." : confirmLabel}
