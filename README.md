@@ -10,6 +10,25 @@ Interview assignment implementation for a Buyer-facing refinery purchase order w
 
 The implementation uses one PostgreSQL database for practicality, with logical ownership kept separate. Migrations create `catalog` and `procurement` schemas so each service owns its own tables.
 
+## How to run locally (quick start)
+
+```bash
+cp .env.example .env
+cp apps/frontend/.env.example apps/frontend/.env.local
+npm install
+docker compose up --build catalog-service procurement-service
+```
+
+In another terminal:
+
+```bash
+cd apps/catalog-service && alembic upgrade head
+cd ../procurement-service && alembic upgrade head
+npm run dev:frontend
+```
+
+Open `http://localhost:3000`.
+
 ## Backend Rules
 
 - Procurement enforces single-supplier purchase orders in service logic and with a composite DB constraint on line supplier.
@@ -61,6 +80,7 @@ APP_ENV=local
 APP_PORT=8001
 DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST/neondb?sslmode=require
 ALLOWED_ORIGINS=http://localhost:3000
+SEED_CATALOG_ON_STARTUP=true
 ```
 
 Procurement service variables:

@@ -111,7 +111,9 @@ export function ReviewPage() {
                   onClick={() => submitMutation.mutate()}
                   disabled={submitMutation.isPending || draft.lines.length === 0}
                 >
-                  {submitMutation.isPending ? "Generating PO number..." : "Submit purchase order"}
+                  {submitMutation.isPending
+                    ? "Generating Purchase Order number..."
+                    : "Submit Purchase Order"}
                 </Button>
               </div>
             </CardContent>

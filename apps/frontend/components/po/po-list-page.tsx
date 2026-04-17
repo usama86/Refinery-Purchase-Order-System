@@ -58,7 +58,7 @@ export function PoListPage() {
           <Table className="min-w-[920px]">
             <TableHeader className="bg-muted/65">
               <TableRow className="hover:bg-muted/65">
-                <TableHead>PO number</TableHead>
+                <TableHead>Purchase Order</TableHead>
                 <TableHead>Supplier</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Submitted</TableHead>

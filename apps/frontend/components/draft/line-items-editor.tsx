@@ -29,7 +29,7 @@ export function LineItemsEditor({
         <TableHeader className="bg-muted/65">
           <TableRow className="hover:bg-muted/65">
             <TableHead>Item</TableHead>
-            <TableHead>Lead</TableHead>
+            <TableHead>Lead time</TableHead>
             <TableHead>Unit</TableHead>
             <TableHead>Qty</TableHead>
             <TableHead className="text-right">Line total</TableHead>

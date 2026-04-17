@@ -60,7 +60,7 @@ export function CatalogTable({
           />
           <TableHead className="w-[132px]">Category</TableHead>
           <SortableHead
-            label="Lead"
+            label="Lead time"
             active={
               sort === "lead-asc" ? "asc" : sort === "lead-desc" ? "desc" : false
             }

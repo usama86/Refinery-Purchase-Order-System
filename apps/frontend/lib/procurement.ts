@@ -38,6 +38,16 @@ type ApiOrder = {
   }>;
 };
 
+class ProcurementApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number
+  ) {
+    super(message);
+    this.name = "ProcurementApiError";
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${procurementApiBaseUrl}${path}`, {
     ...init,
@@ -49,7 +59,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new Error(body?.detail ?? "Procurement request failed.");
+    const detail = typeof body?.detail === "string" ? body.detail : null;
+    throw new ProcurementApiError(
+      detail ?? "The procurement service could not complete the request.",
+      response.status
+    );
   }
 
   if (response.status === 204) return undefined as T;
@@ -168,8 +182,11 @@ export async function getPurchaseOrder(poNumber: string) {
     return toPurchaseOrder(
       await request<ApiOrder>(`/procurement/purchase-orders/${poNumber}`)
     );
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof ProcurementApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
   }
 }
 
